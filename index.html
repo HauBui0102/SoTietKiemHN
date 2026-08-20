@@ -195,6 +195,45 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
 .codebox{display:flex;align-items:center;gap:12px;justify-content:space-between;padding:13px 15px;
   border-radius:12px;background:rgba(201,162,39,.08);border:1px solid var(--line);margin-bottom:9px}
 .codebox b{font-family:var(--fd);font-size:24px;font-weight:700;letter-spacing:.22em;color:var(--gold-hi)}
+input.pin{width:118px;padding:7px 10px;border-radius:9px;text-align:right;font-size:13px;
+  font-variant-numeric:tabular-nums;background:var(--ink);border:1px solid var(--line2)}
+input.pin.set{border-color:var(--gold);background:rgba(201,162,39,.09);color:var(--gold-hi);font-weight:600}
+.hbar{display:flex;align-items:center;gap:11px;padding:9px 0}
+.hbar .nm{width:132px;flex:none;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbar .tr{flex:1;height:22px;position:relative;background:rgba(255,255,255,.045);border-radius:5px;overflow:hidden}
+.hbar .tr i{position:absolute;top:0;bottom:0;border-radius:5px}
+.hbar .vv{width:126px;flex:none;text-align:right;font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
+@media(max-width:600px){
+  .hbar{flex-wrap:wrap;gap:6px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.045)}
+  .hbar .nm{width:100%;font-weight:600;font-size:13px}
+  .hbar .vv{width:auto;min-width:104px}
+}
+.prow{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.prow:last-child{border-bottom:0}
+.prow .nm{flex:1;min-width:0;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow .nm small{display:block;color:var(--muted);font-size:11px}
+.rw{position:relative;margin-bottom:14px}
+.rbtn{display:inline-flex;align-items:center;gap:9px;padding:10px 15px;border-radius:11px;
+  background:var(--ink2);border:1px solid var(--line);font-size:13.5px;font-weight:600;color:var(--gold-hi)}
+.rbtn svg{width:12px;height:12px;transition:.2s}
+.rbtn.open svg{transform:rotate(180deg)}
+.rpop{position:absolute;z-index:30;top:calc(100% + 7px);left:0;width:min(360px,calc(100vw - 52px));padding:9px;
+  background:var(--surf2);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 18px 44px rgba(0,0,0,.55);animation:up .18s}
+.rpop .opt{display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px 12px;
+  border-radius:9px;font-size:13.5px;text-align:left;color:var(--paper)}
+.rpop .opt:hover{background:rgba(255,255,255,.05)}
+.rpop .opt.on{background:rgba(201,162,39,.14);color:var(--gold-hi);font-weight:600}
+.rpop .opt span{font-size:11.5px;color:var(--muted)}
+.rpop hr{border:0;border-top:1px solid var(--line2);margin:8px 4px}
+.rpop .mm{padding:2px 4px 4px}
+.rpop .mm+.mm{padding-top:10px}
+.rpop label{margin-bottom:6px}
+.rpop .pair{display:flex;gap:8px}
+.rpop select{padding:11px 34px 11px 12px;font-size:14px;font-weight:500;background-color:var(--ink)}
+.rpop select.mo{flex:1.35}
+.rpop select.yr{flex:1}
+.rpop .res{padding:9px 5px 3px;font-size:12px;color:var(--muted);text-align:center}
 
 #modal{position:fixed;inset:0;z-index:70;background:rgba(6,10,9,.72);backdrop-filter:blur(6px);
   display:flex;align-items:flex-end;justify-content:center;padding:0}
@@ -257,6 +296,7 @@ svg.ch{width:100%;height:auto;display:block;overflow:visible}
   <nav class="tabs" id="tabs">
     <button data-t="home" class="on">Tổng quan</button>
     <button data-t="tx">Giao dịch</button>
+    <button data-t="brand">Hãng vàng</button>
     <button data-t="rep">Báo cáo</button>
     <button data-t="set">Cài đặt</button>
   </nav>
@@ -285,7 +325,7 @@ const DB={
 const SEED_TX = [{"id": "s01","date": "2024-10-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 15,"price": 7400,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "Gộp T1-T10/2024","updatedAt": 0},{"id": "s02","date": "2024-11-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 2,"price": 8600,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "Gộp T11-T12/2024","updatedAt": 0},{"id": "s03","date": "2025-02-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 2,"price": 10070,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "Gộp T1-T2/2025","updatedAt": 0},{"id": "s04","date": "2025-03-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 8,"price": 10030,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "","updatedAt": 0},{"id": "s05","date": "2025-04-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 5,"price": 11800,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "","updatedAt": 0},{"id": "s06","date": "2025-06-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 1,"price": 11700,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "","updatedAt": 0},{"id": "s07","date": "2025-08-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 3,"price": 12195,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "","updatedAt": 0},{"id": "s08","date": "2025-09-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 6,"price": 13080,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "","updatedAt": 0},{"id": "s09","date": "2025-09-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 2,"price": 12850,"cash": 0,"shop": "Phú Quý","note": "2 chỉ Phú Quý","updatedAt": 0},{"id": "s10","date": "2025-11-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 2,"price": 14840,"cash": 0,"shop": "Phú Quý","note": "2 chỉ Phú Quý","updatedAt": 0},{"id": "s11","date": "2026-01-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 2,"price": 17330,"cash": 0,"shop": "Phú Quý","note": "2 chỉ Phú Quý","updatedAt": 0},{"id": "s12","date": "2026-01-30","owner": "Bé Nhạn","type": "Mua vàng","chi": 1,"price": 18160,"cash": 0,"shop": "Minh Hải","note": "1 chỉ Minh Hải mua 30/1 (đã lấy)","updatedAt": 0},{"id": "s13","date": "2026-02-10","owner": "Bé Nhạn","type": "Mua vàng","chi": 1,"price": 18060,"cash": 0,"shop": "Bảo Tín Minh Hải","note": "1 chỉ BTMH mua 10/2 (đã lấy)","updatedAt": 0},{"id": "s14","date": "2026-02-14","owner": "Bé Nhạn","type": "Mua vàng","chi": 2,"price": 18100,"cash": 0,"shop": "Bảo Tín Minh Hải","note": "2 chỉ BTMH mua 14/2 (đã lấy)","updatedAt": 0},{"id": "s15","date": "2026-04-11","owner": "Bé Nhạn","type": "Mua vàng","chi": 1,"price": 17220,"cash": 0,"shop": "Phú Quý","note": "1 chỉ Phú Quý (11/4)","updatedAt": 0},{"id": "s16","date": "2026-04-15","owner": "Bé Nhạn","type": "Mua vàng","chi": 1,"price": 18300,"cash": 0,"shop": "Bảo Tín Minh Hải","note": "1 chỉ vàng Cúc hình vuông BTMH (15/4)","updatedAt": 0},{"id": "s17","date": "2026-05-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 2,"price": 17230,"cash": 0,"shop": "Bảo Tín Minh Hải","note": "2 chỉ BTMH mua tháng 5","updatedAt": 0},{"id": "s18","date": "2026-06-13","owner": "Bé Nhạn","type": "Mua vàng","chi": 2,"price": 14700,"cash": 0,"shop": "Bảo Tín Minh Hải","note": "2 chỉ BTMH mua 13/06","updatedAt": 0},{"id": "s19","date": "2026-07-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 2,"price": 14600,"cash": 0,"shop": "Bảo Tín Minh Hải","note": "2 chỉ BTMH anh gấu bán lại, anh đã đưa vàng","updatedAt": 0},{"id": "s20","date": "2026-07-01","owner": "Bé Nhạn","type": "Nạp tiết kiệm","chi": 0,"price": 0,"cash": 25000,"shop": "Tài khoản tiết kiệm","note": "Đang cất tài khoản tiết kiệm","updatedAt": 0},{"id": "s21","date": "2026-08-01","owner": "Bé Nhạn","type": "Mua vàng","chi": 1,"price": 14520,"cash": 0,"shop": "Bảo Tín Minh Hải","note": "1 chỉ BTMH","updatedAt": 0},{"id": "s22","date": "2024-10-01","owner": "Hậu","type": "Mua vàng","chi": 2,"price": 8600,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "Gộp T1-T10/2024","updatedAt": 0},{"id": "s23","date": "2024-10-01","owner": "Hậu","type": "Nạp tiết kiệm","chi": 0,"price": 0,"cash": 50000,"shop": "Tài khoản tiết kiệm","note": "Tiết kiệm tích luỹ tới hết 2024","updatedAt": 0},{"id": "s24","date": "2025-02-01","owner": "Hậu","type": "Mua vàng","chi": 1,"price": 10070,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "Gộp T1-T2/2025","updatedAt": 0},{"id": "s25","date": "2025-03-01","owner": "Hậu","type": "Mua vàng","chi": 2,"price": 10030,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "","updatedAt": 0},{"id": "s26","date": "2025-06-01","owner": "Hậu","type": "Mua vàng","chi": 1,"price": 11700,"cash": 0,"shop": "Bảo Tín Minh Châu","note": "","updatedAt": 0},{"id": "s27","date": "2025-09-01","owner": "Hậu","type": "Mua vàng","chi": 1,"price": 13080,"cash": 0,"shop": "Bảo Tín Minh Hải","note": "1 chỉ BTMH","updatedAt": 0},{"id": "s28","date": "2025-10-01","owner": "Hậu","type": "Mua vàng","chi": 2,"price": 15600,"cash": 0,"shop": "Bảo Tín Minh Hải","note": "2 chỉ BTMH","updatedAt": 0},{"id": "s29","date": "2025-11-01","owner": "Hậu","type": "Nạp tiết kiệm","chi": 0,"price": 0,"cash": 10000,"shop": "Cho vay","note": "Chị đang vay 10tr","updatedAt": 0},{"id": "s30","date": "2026-01-01","owner": "Hậu","type": "Mua vàng","chi": 1,"price": 17220,"cash": 0,"shop": "Phú Quý","note": "1 chỉ Phú Quý","updatedAt": 0},{"id": "s31","date": "2026-02-01","owner": "Hậu","type": "Mua vàng","chi": 4,"price": 18060,"cash": 0,"shop": "Bảo Tín Minh Hải","note": "4 chỉ BTMH (đã lấy)","updatedAt": 0},{"id": "s32","date": "2026-06-13","owner": "Hậu","type": "Mua vàng","chi": 1,"price": 14700,"cash": 0,"shop": "Bảo Tín Minh Hải","note": "1 chỉ BTMH mua 13/06","updatedAt": 0},{"id": "s33","date": "2026-08-01","owner": "Hậu","type": "Nạp tiết kiệm","chi": 0,"price": 0,"cash": 26000,"shop": "Tài khoản tiết kiệm","note": "Đang cất tài khoản tiết kiệm","updatedAt": 0}];
 const DEFAULTS={
   version:2, metaAt:0,
-  settings:{goldPrice:14520, goldDate:'2026-08-20', targetTotal:2000000, targetGold:100, monthly:10000},
+  settings:{goldPrice:14520, goldDate:'2026-08-20', targetTotal:2000000, targetGold:100, monthly:10000, brandPrices:{}},
   owners:['Bé Nhạn','Hậu'],
   shops:['Bảo Tín Minh Châu','Bảo Tín Minh Hải','Phú Quý','Minh Hải','DOJI','SJC','Tài khoản tiết kiệm','Chứng khoán','Cho vay','Khác'],
   tx:[]
@@ -294,7 +334,8 @@ const DEVDEF={pin:null, cloud:{url:'',key:'',email:'',session:null,lastSync:0,bo
 const TYPES=['Mua vàng','Bán vàng','Nạp tiết kiệm','Rút tiết kiệm','Đầu tư khác'];
 
 let D=null, DEV=null, tab='home', filt={owner:'',type:'',year:'',q:''};
-let range={mode:'1y', from:'', to:''};   // 1y | 2y | all | custom
+let range={mode:'1y', from:'', to:''};   // 6m | 1y | 2y | all | custom
+let rangeOpen=false, bOwner='';
 
 /* ============================ HELPERS ============================ */
 const $=s=>document.querySelector(s);
@@ -322,6 +363,13 @@ function toast(m){const t=document.createElement('div');t.className='toast';t.te
 
 /* ============================ MATH ============================ */
 const TXS=()=>D.tx.filter(t=>!t.deleted);
+const NOSHOP='Chưa ghi hãng';
+const shopKey=v=>String(v||'').trim()||NOSHOP;
+function priceFor(shop){
+  const b=D.settings.brandPrices||{}, v=b[shopKey(shop)];
+  return (v===undefined||v===null||v==='')?(+D.settings.goldPrice||0):(+v||0);
+}
+const hasBrandPrices=()=>Object.keys(D.settings.brandPrices||{}).length>0;
 function netGold(t){return t.type==='Mua vàng'?+t.chi||0:t.type==='Bán vàng'?-(+t.chi||0):0;}
 function netVal(t){const v=(+t.chi||0)*(+t.price||0);return t.type==='Mua vàng'?v:t.type==='Bán vàng'?-v:0;}
 function netCash(t){const c=+t.cash||0;
@@ -332,8 +380,23 @@ function agg(list){
   const g=list.reduce((s,t)=>s+netGold(t),0);
   const cost=list.reduce((s,t)=>s+netVal(t),0);
   const cash=list.reduce((s,t)=>s+netCash(t),0);
-  const now=g*D.settings.goldPrice;
+  const now=list.reduce((s,t)=>s+netGold(t)*priceFor(t.shop),0);   // mỗi hãng một giá
   return {gold:g,cost,cash,now,pl:now-cost,plp:cost?(now-cost)/cost:0,avg:g?cost/g:0,total:cash+now};
+}
+// gộp theo hãng vàng
+function brandRows(owner){
+  const list=TXS().filter(t=>(t.type==='Mua vàng'||t.type==='Bán vàng')&&(!owner||t.owner===owner));
+  const m=new Map();
+  for(const t of list){
+    const k=shopKey(t.shop);
+    if(!m.has(k))m.set(k,{shop:k,gold:0,cost:0,n:0});
+    const r=m.get(k); r.gold+=netGold(t); r.cost+=netVal(t); r.n++;
+  }
+  return [...m.values()].map(r=>{
+    const price=priceFor(r.shop), now=r.gold*price;
+    return Object.assign(r,{price,now,pl:now-r.cost,plp:r.cost?(now-r.cost)/r.cost:0,avg:r.gold?r.cost/r.gold:0});
+  }).filter(r=>Math.abs(r.gold)>1e-9||Math.abs(r.cost)>1e-9)
+    .sort((a,b)=>b.now-a.now);
 }
 const byOwner=o=>TXS().filter(t=>t.owner===o);
 
@@ -348,6 +411,7 @@ const saveDev=()=>DB.set(DEVKEY,JSON.stringify(DEV));
 function normalize(b){
   b=Object.assign({},DEFAULTS,b);
   b.settings=Object.assign({},DEFAULTS.settings,b.settings||{});
+  b.settings.brandPrices=b.settings.brandPrices||{};
   b.metaAt=+b.metaAt||0;
   b.tx=(b.tx||[]).map(t=>Object.assign({},t,{id:t.id||uid(),updatedAt:+t.updatedAt||0}));
   return b;
@@ -556,7 +620,7 @@ $('#tabs').addEventListener('click',e=>{
 });
 $('#btnLock').addEventListener('click',lockNow);
 $('#sync').addEventListener('click',()=>syncNow(true));
-function render(){ $('#view').innerHTML=({home:vHome,tx:vTx,rep:vRep,set:vSet})[tab](); wire(); paintSync(); }
+function render(){ $('#view').innerHTML=({home:vHome,tx:vTx,brand:vBrand,rep:vRep,set:vSet})[tab](); wire(); paintSync(); }
 
 /* ---------- Tổng quan ---------- */
 function vault(){
@@ -568,7 +632,7 @@ function vault(){
     <div class="cap"><div><h3 style="margin-bottom:4px">Kho vàng</h3><b>${nf(total)} chỉ</b>
       <span style="color:var(--muted);font-size:13.5px"> · ${cay} cây${le?' '+le+' chỉ':''}</span></div>
       <div style="text-align:right"><div style="font-size:12.5px;color:var(--muted)">Giá trị hôm nay</div>
-      <b style="font-family:var(--fd);font-size:19px">${money(total*D.settings.goldPrice)}</b></div></div>
+      <b style="font-family:var(--fd);font-size:19px">${money(agg(TXS()).now)}</b></div></div>
     ${total?`<div class="rows">${rows.map((r,i)=>`<div class="trow"><div class="idx">${i<cay?'cây '+(i+1):'lẻ'}</div><div class="tiles">${
       r.map((oi,j)=>`<div class="tile${oi?' j':''}" style="animation-delay:${(i*10+j)*11}ms"></div>`).join('')}</div></div>`).join('')}</div>`
       :'<div class="empty">Chưa có chỉ vàng nào trong sổ</div>'}
@@ -605,7 +669,8 @@ function vHome(){
   </div>
   <div class="card">
     <h3>So sánh hai người</h3>
-    <p class="sub">Giá vàng đang dùng: ${nf(D.settings.goldPrice)} nghìn ₫/chỉ (${dmy(D.settings.goldDate)})</p>
+    <p class="sub">Giá vàng đang dùng: ${nf(D.settings.goldPrice)} nghìn ₫/chỉ (${dmy(D.settings.goldDate)})${
+      hasBrandPrices()?` · <span style="color:var(--gold-hi)">${Object.keys(D.settings.brandPrices).length} hãng có giá riêng</span>`:''}</p>
     <div class="tw"><table>
       <thead><tr><th>Chỉ tiêu</th>${D.owners.map(o=>`<th>${esc(o)}</th>`).join('')}<th>Tổng</th></tr></thead>
       <tbody>${[
@@ -666,6 +731,91 @@ function vTx(){
   </div>`;
 }
 
+
+/* ---------- Hãng vàng ---------- */
+function plBars(rows){
+  const mx=Math.max(1,...rows.map(r=>Math.abs(r.pl)));
+  return rows.map(r=>{
+    const w=(Math.abs(r.pl)/mx)*50, up=r.pl>=0;
+    return `<div class="hbar">
+      <div class="nm" title="${esc(r.shop)}">${esc(r.shop)}</div>
+      <div class="tr">
+        <i style="left:${up?50:50-w}%;width:${w}%;background:${up?'linear-gradient(90deg,var(--jade),var(--green))':'linear-gradient(90deg,var(--red),#8E3A33)'}"></i>
+        <i style="left:50%;width:1px;background:rgba(255,255,255,.22);border-radius:0"></i>
+      </div>
+      <div class="vv ${up?'pos':'neg'}">${money(r.pl)}</div>
+    </div>`;
+  }).join('');
+}
+function vBrand(){
+  const rows=brandRows(bOwner), bp=D.settings.brandPrices||{};
+  const T=rows.reduce((a,r)=>({gold:a.gold+r.gold,cost:a.cost+r.cost,now:a.now+r.now}),{gold:0,cost:0,now:0});
+  T.pl=T.now-T.cost; T.plp=T.cost?T.pl/T.cost:0;
+  const best=rows.filter(r=>r.gold>0).slice().sort((a,b)=>b.plp-a.plp);
+  const chip=(v,l)=>`<button class="chip${bOwner===v?' on':''}" data-bo="${esc(v)}">${esc(l)}</button>`;
+  if(!rows.length)return `<div class="card"><div class="empty"><b>Chưa có giao dịch vàng</b>Thêm giao dịch mua vàng để xem phân tích theo hãng.</div></div>`;
+  return `
+  <div class="card">
+    <h3>Nhập giá nhanh</h3>
+    <p class="sub">Đơn vị: nghìn ₫ / chỉ. Bỏ trống ô của hãng nào thì hãng đó dùng giá chung.</p>
+    <div class="f"><label>Giá chung cho mọi hãng</label>
+      <input id="bAll" type="number" value="${D.settings.goldPrice}" placeholder="VD 14520"></div>
+    <div class="row">
+      <button class="btn p" data-act="setcommon">Lưu làm giá chung</button>
+      <button class="btn" data-act="applyall">Áp giá này cho từng hãng</button>
+      <button class="btn" data-act="clearbrand">Xoá hết giá riêng</button>
+    </div>
+    <div class="hint">“Lưu làm giá chung” chỉ đổi giá mặc định. “Áp giá này cho từng hãng” ghi đè giá riêng của tất cả các hãng bên dưới.</div>
+    <div style="margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)">
+      <h3 style="margin-bottom:10px">Giá riêng từng hãng</h3>
+      ${brandRows('').map(r=>{const set=bp[r.shop]!==undefined&&bp[r.shop]!=='';
+        return `<div class="prow"><div class="nm">${esc(r.shop)}
+          <small>${nf(r.gold,1)} chỉ · đang tính ${nf(r.price)} nghìn/chỉ</small></div>
+          <input class="pin${set?' set':''}" data-bp="${esc(r.shop)}" type="number"
+            value="${set?bp[r.shop]:''}" placeholder="${nf(D.settings.goldPrice)}"></div>`;}).join('')}
+      <div class="hint" style="margin-top:10px">Ô nền vàng = hãng đang dùng giá riêng. Xoá trắng ô là quay về giá chung. Sửa xong bấm ra ngoài là lưu.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div><h3>Lãi / lỗ theo hãng</h3><p class="sub" style="margin:0">${rows.length} hãng · ${nf(T.gold,1)} chỉ</p></div>
+    </div>
+    <div class="chips" style="margin-bottom:14px">${chip('','Cả hai')}${D.owners.map(o=>chip(o,o)).join('')}</div>
+    <div class="tw"><table>
+      <thead><tr><th>Hãng</th><th>Chỉ</th><th>Vốn</th><th>Giá vốn TB</th>
+        <th>Giá hiện tại</th><th>Giá trị</th><th>Lãi/lỗ</th><th>%</th></tr></thead>
+      <tbody>${rows.map(r=>{
+        const set=bp[r.shop]!==undefined&&bp[r.shop]!=='';
+        return `<tr>
+        <td class="l">${esc(r.shop)}<div style="font-size:11px;color:var(--muted)">${r.n} giao dịch</div></td>
+        <td>${nf(r.gold,1)}</td>
+        <td>${money(r.cost)}</td>
+        <td>${money(r.avg)}</td>
+        <td style="${set?'color:var(--gold-hi);font-weight:600':''}">${nf(r.price)}${set?' *':''}</td>
+        <td>${money(r.now)}</td>
+        <td class="${r.pl>=0?'pos':'neg'}">${money(r.pl)}</td>
+        <td class="${r.pl>=0?'pos':'neg'}">${nf(r.plp*100,1)}%</td></tr>`;}).join('')}
+        <tr class="tot"><td class="l">TỔNG</td><td>${nf(T.gold,1)}</td><td>${money(T.cost)}</td>
+          <td>${money(T.gold?T.cost/T.gold:0)}</td><td></td><td>${money(T.now)}</td>
+          <td class="${T.pl>=0?'pos':'neg'}">${money(T.pl)}</td>
+          <td class="${T.pl>=0?'pos':'neg'}">${nf(T.plp*100,1)}%</td></tr>
+      </tbody></table></div>
+    <div class="hint" style="margin-top:10px">Cột “Giá hiện tại” tính bằng nghìn ₫/chỉ. Dấu * = hãng đang dùng giá riêng.</div>
+  </div>
+
+  <div class="card"><h3>So sánh lãi / lỗ</h3>
+    <p class="sub">Vạch giữa là hoà vốn</p>${plBars(rows)}</div>
+
+  ${best.length>1?`<div class="card"><h3>Hãng nào đang lời nhất</h3>
+    <p class="sub">Xếp theo % lãi trên vốn, chỉ tính hãng còn đang giữ vàng</p>
+    <div class="tw"><table><thead><tr><th>#</th><th>Hãng</th><th>% lãi/lỗ</th><th>Lãi/lỗ</th><th>Chỉ đang giữ</th></tr></thead>
+      <tbody>${best.map((r,i)=>`<tr><td class="l">${i+1}</td><td class="l">${esc(r.shop)}</td>
+        <td class="${r.pl>=0?'pos':'neg'}">${nf(r.plp*100,1)}%</td>
+        <td class="${r.pl>=0?'pos':'neg'}">${money(r.pl)}</td><td>${nf(r.gold,1)}</td></tr>`).join('')}
+      </tbody></table></div></div>`:''}`;
+}
+
 /* ---------- Báo cáo ---------- */
 function months(){
   const all=TXS(); if(!all.length)return [];
@@ -675,13 +825,15 @@ function months(){
   return out;
 }
 function series(){
-  let cg=0,cc=0,cv=0; const all=TXS();
+  let cg=0,cc=0,cv=0; const all=TXS(), cumShop={};
   return months().map(k=>{
     const rows=all.filter(t=>ky(t.date)===k);
     const g=rows.reduce((s,t)=>s+netGold(t),0), v=rows.reduce((s,t)=>s+netVal(t),0), c=rows.reduce((s,t)=>s+netCash(t),0);
     cg+=g;cc+=c;cv+=v;
+    rows.forEach(t=>{const n=netGold(t); if(n){const sk=shopKey(t.shop); cumShop[sk]=(cumShop[sk]||0)+n;}});
+    const goldVal=Object.keys(cumShop).reduce((s,sk)=>s+cumShop[sk]*priceFor(sk),0);
     const per=D.owners.map(o=>rows.filter(t=>t.owner===o).reduce((s,t)=>s+netGold(t),0));
-    return {k,g,v,c,per,cg,cc,cv,total:cc+cg*D.settings.goldPrice};
+    return {k,g,v,c,per,cg,cc,cv,total:cc+goldVal};
   });
 }
 function lineChart(S){
@@ -723,29 +875,52 @@ function sliceRange(S){
     const a=f<=t?f:t, b=f<=t?t:f;
     return S.filter(d=>d.k>=a&&d.k<=b);
   }
-  return S.slice(-(range.mode==='2y'?24:12));
+  return S.slice(-(range.mode==='2y'?24:range.mode==='6m'?6:12));
 }
-function rangeBar(S){
-  const opts=[['1y','1 năm gần nhất'],['2y','2 năm'],['all','Tất cả'],['custom','Tuỳ chọn']];
+const RANGE_OPTS=[['6m','6 tháng gần nhất'],['1y','1 năm gần nhất'],['2y','2 năm gần nhất'],
+                  ['all','Tất cả'],['custom','Chọn từ tháng – đến tháng']];
+const mmYY=k=>k?`${k.slice(5)}/${k.slice(0,4)}`:'';
+function monthPicker(id,label,val,first,last){
+  const [y,m]=String(val||first).split('-').map(Number);
+  const y0=+first.slice(0,4), y1=+last.slice(0,4);
+  const years=[]; for(let i=y0;i<=y1;i++)years.push(i);
+  return `<div class="mm"><label>${label}</label><div class="pair">
+    <select class="mo" id="${id}M">${Array.from({length:12},(_,i)=>i+1).map(i=>
+      `<option value="${i}"${i===m?' selected':''}>Tháng ${i}</option>`).join('')}</select>
+    <select class="yr" id="${id}Y">${years.map(v=>
+      `<option value="${v}"${v===y?' selected':''}>${v}</option>`).join('')}</select>
+  </div></div>`;
+}
+function rangeBar(S,R){
   const first=S[0].k, last=S[S.length-1].k;
-  return `<div class="chips" style="margin-bottom:12px">${opts.map(([v,l])=>
-      `<button class="chip${range.mode===v?' on':''}" data-r="${v}">${l}</button>`).join('')}</div>
-    ${range.mode==='custom'?`<div class="row" style="margin-bottom:14px;gap:12px">
-      <div style="flex:1;min-width:140px"><label>Từ tháng</label>
-        <input id="rFrom" type="month" min="${first}" max="${last}" value="${range.from||first}"></div>
-      <div style="flex:1;min-width:140px"><label>Đến tháng</label>
-        <input id="rTo" type="month" min="${first}" max="${last}" value="${range.to||last}"></div>
-    </div>`:''}`;
+  const lab=(RANGE_OPTS.find(o=>o[0]===range.mode)||RANGE_OPTS[1])[1];
+  const span=R.length?`${mmYY(R[0].k)} → ${mmYY(R[R.length-1].k)}`:'không có tháng nào';
+  return `<div class="rw">
+    <button class="rbtn${rangeOpen?' open':''}" data-act="rtoggle" aria-expanded="${rangeOpen}">
+      <span>${lab} · ${span}</span>
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 4.5 6 8.5 10 4.5"/></svg>
+    </button>
+    ${rangeOpen?`<div class="rpop">
+      ${RANGE_OPTS.map(([v,l])=>`<button class="opt${range.mode===v?' on':''}" data-r="${v}">
+        <span style="font-size:13.5px;color:inherit">${l}</span>
+        ${v!=='custom'&&v!=='all'?`<span>${v==='6m'?6:v==='1y'?12:24} tháng</span>`:v==='all'?`<span>${S.length} tháng</span>`:''}
+      </button>`).join('')}
+      <hr>
+      ${monthPicker('rFrom','Từ tháng', range.from||(R[0]&&R[0].k)||first, first, last)}
+      ${monthPicker('rTo','Đến tháng', range.to||(R.length?R[R.length-1].k:last), first, last)}
+      <div class="res">${R.length?`Đang xem ${R.length} tháng`:'Khoảng này chưa có tháng nào'}</div>
+    </div>`:''}
+  </div>`;
 }
 function vRep(){
   const S=series();
   if(!S.length)return '<div class="card"><div class="empty"><b>Chưa có dữ liệu</b>Thêm giao dịch để xem báo cáo.</div></div>';
   const R=sliceRange(S);
-  const span=R.length?`${R[0].k.slice(5)}/${R[0].k.slice(0,4)} → ${R[R.length-1].k.slice(5)}/${R[R.length-1].k.slice(0,4)} · ${R.length} tháng`:'không có tháng nào trong khoảng đã chọn';
+  const span=R.length?`${R.length} tháng`:'không có tháng nào trong khoảng đã chọn';
   return `
   <div class="card"><h3>Tổng tài sản luỹ kế</h3>
     <p class="sub">Tiền mặt luỹ kế + số vàng luỹ kế định giá theo giá hiện tại &nbsp;·&nbsp; ${span}</p>
-    ${rangeBar(S)}
+    ${rangeBar(S,R)}
     ${R.length?lineChart(R):'<div class="empty">Không có tháng nào trong khoảng đã chọn</div>'}</div>
   <div class="card"><h3>Vàng mua theo tháng</h3>
     <p class="sub"><span style="color:var(--gold)">■</span> ${esc(D.owners[0])} &nbsp; <span style="color:var(--jade-hi)">■</span> ${esc(D.owners[1]||'')} &nbsp;·&nbsp; cùng khoảng thời gian ở trên</p>
@@ -999,9 +1174,21 @@ function dl(text,name,type){
   setTimeout(()=>URL.revokeObjectURL(a.href),1500);
 }
 function wire(){
-  const rf=$('#rFrom'), rt=$('#rTo');
-  if(rf)rf.addEventListener('change',e=>{range.from=e.target.value;render();});
-  if(rt)rt.addEventListener('change',e=>{range.to=e.target.value;render();});
+  document.querySelectorAll('[data-bp]').forEach(el=>el.addEventListener('change',async ev=>{
+    const k=el.dataset.bp, v=String(ev.target.value||'').trim();
+    D.settings.brandPrices=D.settings.brandPrices||{};
+    if(v===''||+v<=0) delete D.settings.brandPrices[k]; else D.settings.brandPrices[k]=+v;
+    D.metaAt=Date.now(); await save(); render();
+  }));
+  const pick=()=>{
+    const g=(a,b)=>{const M=$('#'+a+'M'), Y=$('#'+a+'Y');
+      return M&&Y?Y.value+'-'+String(M.value).padStart(2,'0'):b;};
+    range.from=g('rFrom',range.from); range.to=g('rTo',range.to);
+    range.mode='custom'; render();
+  };
+  ['rFromM','rFromY','rToM','rToY'].forEach(k=>{
+    const el=$('#'+k); if(el)el.addEventListener('change',pick);
+  });
   const q=$('#q'); if(q)q.addEventListener('input',e=>{filt.q=e.target.value;const p=e.target.selectionStart;render();
     const n=$('#q'); if(n){n.focus();n.setSelectionRange(p,p);} });
   const f=$('#file'); if(f)f.addEventListener('change',async e=>{
@@ -1013,13 +1200,18 @@ function wire(){
   });
 }
 document.addEventListener('click',async e=>{
+  if(rangeOpen&&!e.target.closest('.rw')){ rangeOpen=false; if(tab==='rep')render(); }
   const rb=e.target.closest('[data-r]');
-  if(rb){ range.mode=rb.dataset.r; if(range.mode!=='custom'){range.from='';range.to='';} render(); return; }
+  if(rb){ range.mode=rb.dataset.r;
+    if(range.mode!=='custom'){range.from='';range.to='';rangeOpen=false;}
+    render(); return; }
+  const bo=e.target.closest('[data-bo]'); if(bo){bOwner=bo.dataset.bo;render();return;}
   const fb=e.target.closest('[data-f]'); if(fb){filt[fb.dataset.f]=fb.dataset.v;render();return;}
   const eb=e.target.closest('[data-edit]'); if(eb){openTx(eb.dataset.edit);return;}
   const b=e.target.closest('[data-act]'); if(!b)return;
   const a=b.dataset.act;
 
+  if(a==='rtoggle'){ rangeOpen=!rangeOpen; render(); return; }
   if(a==='add')openTx(null);
   else if(a==='close')closeModal();
   else if(a==='submit')submitTx();
@@ -1075,6 +1267,18 @@ document.addEventListener('click',async e=>{
     try{ await authRequest(em,pw,a==='signup'); render(); toast('Đăng nhập thành công'); await syncNow(true); }
     catch(err){ b.disabled=false; render(); toast(err.message); }
   }
+  else if(a==='setcommon'){
+    const v=+$('#bAll').value; if(!(v>0)){toast('Nhập giá lớn hơn 0');return;}
+    D.settings.goldPrice=v; D.settings.goldDate=new Date().toISOString().slice(0,10);
+    D.metaAt=Date.now(); await save(); render(); toast('Đã đặt giá chung '+nf(v)+' nghìn ₫/chỉ'); }
+  else if(a==='applyall'){
+    const v=+$('#bAll').value; if(!(v>0)){toast('Nhập giá lớn hơn 0');return;}
+    const bp={}; brandRows('').forEach(r=>bp[r.shop]=v);
+    D.settings.brandPrices=bp; D.metaAt=Date.now(); await save(); render();
+    toast('Đã áp giá cho '+Object.keys(bp).length+' hãng'); }
+  else if(a==='clearbrand'){
+    if(confirm('Xoá giá riêng của tất cả các hãng, quay về dùng giá chung?')){
+      D.settings.brandPrices={}; D.metaAt=Date.now(); await save(); render(); toast('Đã xoá giá riêng'); } }
   else if(a==='syncnow')await syncNow(true);
   else if(a==='newbook'){
     b.disabled=true; b.textContent='Đang tạo…';
