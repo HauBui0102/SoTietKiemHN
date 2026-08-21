@@ -330,12 +330,17 @@ const DEFAULTS={
   shops:['Bảo Tín Minh Châu','Bảo Tín Minh Hải','Phú Quý','Minh Hải','DOJI','SJC','Tài khoản tiết kiệm','Chứng khoán','Cho vay','Khác'],
   tx:[]
 };
-const DEVDEF={pin:null, cloud:{url:'',key:'',email:'',session:null,lastSync:0,book:null}};
+// Dự án Supabase mặc định, đã kết nối sẵn - vào là dùng được ngay
+const CLOUD_DEFAULT={
+  url:'https://qblubfuuwcdzbeocttft.supabase.co',
+  key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFibHViZnV1d2NkemJlb2N0dGZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMDY4NjYsImV4cCI6MjEwMjc4Mjg2Nn0.rLjvibDITB8NIQqUul-UsZjMNgGTPpMhuYxZWUka3k4'
+};
+const DEVDEF={pin:null, cloud:{url:CLOUD_DEFAULT.url,key:CLOUD_DEFAULT.key,email:'',session:null,lastSync:0,book:null}};
 const TYPES=['Mua vàng','Bán vàng','Nạp tiết kiệm','Rút tiết kiệm','Đầu tư khác'];
 
 let D=null, DEV=null, tab='home', filt={owner:'',type:'',year:'',q:''};
 let range={mode:'1y', from:'', to:''};   // 6m | 1y | 2y | all | custom
-let rangeOpen=false, bOwner='';
+let rangeOpen=false, bOwner='', cloudEdit=false;
 
 /* ============================ HELPERS ============================ */
 const $=s=>document.querySelector(s);
@@ -421,10 +426,12 @@ async function boot(){
   const rd=await DB.get(DEVKEY);
   DEV=rd?Object.assign({},DEVDEF,JSON.parse(rd)):JSON.parse(JSON.stringify(DEVDEF));
   DEV.cloud=Object.assign({},DEVDEF.cloud,DEV.cloud||{});
+  if(!DEV.cloud.url)DEV.cloud.url=CLOUD_DEFAULT.url;
+  if(!DEV.cloud.key)DEV.cloud.key=CLOUD_DEFAULT.key;
 
   const raw=await DB.get(KEY);
   if(raw){ try{ const p=JSON.parse(raw); if(p.pin&&!DEV.pin){DEV.pin=p.pin;await saveDev();} D=normalize(p); }catch(e){ D=null; } }
-  if(!D){ D=normalize({tx:JSON.parse(JSON.stringify(SEED_TX))}); }
+  if(!D){ D=normalize({tx:[]}); }   // sổ trống, mọi con số bằng 0 cho tới khi vào đúng sổ chung
   paintSync();
   if(!DEV.pin){ mode='new'; $('#lockTitle').textContent='Tạo mã PIN';
     $('#lockSub').textContent='Chọn 4–8 số để khoá sổ trên thiết bị này'; }
@@ -640,16 +647,28 @@ function vault(){
       `<span><i style="background:${i?'var(--jade)':'var(--gold)'}"></i>${esc(o)} · ${nf(agg(byOwner(o)).gold)} chỉ</span>`).join('')}
       <span style="margin-left:auto">1 ô = 1 chỉ · 1 hàng = 1 cây</span></div></div>`;
 }
+function notLinkedBanner(){
+  if(linked())return '';
+  const n=TXS().length;
+  return `<div class="card" style="border-color:var(--line);background:linear-gradient(180deg,rgba(201,162,39,.10),var(--ink2))">
+    <h3 style="color:var(--gold-hi)">Chưa vào sổ chung</h3>
+    <p class="sub" style="margin-bottom:14px">${signedIn()
+      ? 'Đã đăng nhập nhưng chưa chọn sổ. Bấm “Tạo sổ mới” hoặc nhập mã sổ để thấy dữ liệu.'
+      : 'Sổ đang trống. Đăng nhập rồi nhập mã sổ chung để tải dữ liệu về máy này.'}
+      ${n?` Hiện có ${n} giao dịch chỉ nằm trên máy này.`:''}</p>
+    <button class="btn p" data-act="gosettings">Kết nối sổ chung</button></div>`;
+}
 function vHome(){
   const T=agg(TXS()), up=T.pl>=0, thisM=new Date().toISOString().slice(0,7);
   const saved=TXS().filter(t=>ky(t.date)===thisM).reduce((s,t)=>s+netCash(t)+netVal(t),0);
   const mp=D.settings.monthly?Math.min(1,saved/D.settings.monthly):0;
   return `
+  ${notLinkedBanner()}
   <div class="hero">
     <div class="lab">Tổng tài sản</div>
     <div class="big">${money(T.total)}</div>
-    <div class="meta">${compact(T.total)} &nbsp;·&nbsp; ${nf(T.total)} nghìn ₫ &nbsp;·&nbsp;
-      <span class="delta ${up?'up':'dn'}">${up?'▲':'▼'} ${money(Math.abs(T.pl))} (${nf(Math.abs(T.plp)*100,1)}%) từ vàng</span></div>
+    <div class="meta">${compact(T.total)} &nbsp;·&nbsp; ${nf(T.total)} nghìn ₫${T.cost?` &nbsp;·&nbsp;
+      <span class="delta ${up?'up':'dn'}">${up?'▲':'▼'} ${money(Math.abs(T.pl))} (${nf(Math.abs(T.plp)*100,1)}%) từ vàng</span>`:''}</div>
     ${vault()}
   </div>
   <div class="grid g3" style="margin-top:14px">
@@ -938,6 +957,21 @@ function vRep(){
 }
 
 /* ---------- Cài đặt ---------- */
+function cloudEditor(){
+  const def = base()===CLOUD_DEFAULT.url && C().key===CLOUD_DEFAULT.key;
+  if(!cloudEdit) return `<div class="row" style="margin-top:14px">
+    <button class="btn sm" data-act="cloudedit">Đổi dự án Supabase</button>
+    <span class="hint" style="margin:0;align-self:center">${def?'Đang dùng dự án mặc định':'Đang dùng dự án riêng: '+esc(base())}</span></div>`;
+  return `<div style="margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)">
+    <h3 style="margin-bottom:8px">Dự án Supabase</h3>
+    <p class="sub">Chỉ đổi khi muốn dùng cơ sở dữ liệu riêng. Đổi xong phải đăng nhập lại và vào sổ lại.</p>
+    <div class="f"><label>Project URL</label><input id="cUrl" placeholder="https://abcxyz.supabase.co" value="${esc(C().url)}">
+      <div class="hint">Dán nguyên URL có đuôi <b>/rest/v1</b> cũng được, app tự cắt.</div></div>
+    <div class="f"><label>Anon public key</label><input id="cKey" placeholder="eyJhbGciOi..." value="${esc(C().key)}"></div>
+    <div class="row"><button class="btn p" data-act="cloudsave">Lưu &amp; kiểm tra</button>
+      <button class="btn" data-act="clouddefault">Về dự án mặc định</button>
+      <button class="btn" data-act="cloudcancel">Huỷ</button></div></div>`;
+}
 function cloudCard(){
   if(!configured()) return `
     <div class="state"><i style="background:#4A5651"></i><div class="t"><b>Chưa bật đồng bộ</b>
@@ -947,7 +981,8 @@ function cloudCard(){
       <div class="hint">Lấy ở Project Settings → General → Project URL. Chỉ tới <b>.supabase.co</b>, không có <b>/rest/v1</b> ở cuối — nếu dán dư app sẽ tự cắt.</div></div>
     <div class="f"><label>Anon public key</label><input id="cKey" placeholder="eyJhbGciOi..." value="${esc(C().key)}"></div>
     <div class="row"><button class="btn p" data-act="cloudsave">Lưu kết nối</button>
-      <button class="btn" data-act="guide">Xem hướng dẫn từng bước</button></div>`;
+      <button class="btn" data-act="guide">Xem hướng dẫn từng bước</button>
+      <button class="btn" data-act="clouddefault">Về dự án mặc định</button></div>`;
 
   if(!signedIn()) return `
     <div class="state"><i style="background:var(--red)"></i><div class="t"><b>Chưa đăng nhập</b>
@@ -958,7 +993,7 @@ function cloudCard(){
     <div class="row"><button class="btn p" data-act="signin">Đăng nhập</button>
       <button class="btn" data-act="signup">Tạo tài khoản mới</button>
       <button class="btn" data-act="guide">Hướng dẫn</button></div>
-    <div class="row" style="margin-top:9px"><button class="btn sm" data-act="cloudclear">Đổi dự án Supabase</button></div>`;
+    ${cloudEditor()}`;
 
   if(!linked()) return `
     <div class="state"><i style="background:var(--gold)"></i><div class="t"><b>Đã đăng nhập, chưa vào sổ nào</b>
@@ -969,7 +1004,8 @@ function cloudCard(){
       <input id="cCode" placeholder="VD: A3F9K2C7" maxlength="12" style="text-transform:uppercase;letter-spacing:.14em"></div>
     <div class="row"><button class="btn" data-act="joinbook">Vào sổ chung</button>
       <button class="btn" data-act="guide">Hướng dẫn</button>
-      <button class="btn d" data-act="signout">Đăng xuất</button></div>`;
+      <button class="btn d" data-act="signout">Đăng xuất</button></div>
+    ${cloudEditor()}`;
 
   return `
     <div class="state"><i style="background:${syncErr?'var(--red)':'var(--green)'}"></i>
@@ -983,7 +1019,8 @@ function cloudCard(){
     <div class="row"><button class="btn p" data-act="syncnow">Đồng bộ ngay</button>
       <button class="btn" data-act="guide">Hướng dẫn</button>
       <button class="btn" data-act="leavebook">Đổi sổ khác</button>
-      <button class="btn d" data-act="signout">Đăng xuất khỏi thiết bị này</button></div>`;
+      <button class="btn d" data-act="signout">Đăng xuất khỏi thiết bị này</button></div>
+    ${cloudEditor()}`;
 }
 function vSet(){
   const s=D.settings;
@@ -1018,7 +1055,11 @@ function vSet(){
       <button class="btn" data-act="import">Nhập bản sao</button>
       <button class="btn d" data-act="reset">Xoá toàn bộ</button>
     </div>
-    <input type="file" id="file" accept="application/json,.json" class="hide"></div>`;
+    <input type="file" id="file" accept="application/json,.json" class="hide">
+    <div style="margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)">
+      <h3 style="margin-bottom:6px">Dữ liệu gốc từ file Excel</h3>
+      <p class="sub">${SEED_TX.length} giao dịch từ sổ tiết kiệm Excel ban đầu (2024 → 08/2026). Chỉ bấm khi sổ đang trống và cần nạp lại lịch sử.</p>
+      <button class="btn" data-act="seed">Nạp ${SEED_TX.length} giao dịch gốc</button></div></div>`;
 }
 
 /* ---------- Hướng dẫn Supabase ---------- */
@@ -1096,20 +1137,26 @@ grant execute on function public.join_book(text) to authenticated;`;
 
 function guideModal(){
   const steps=[
-    ['Tạo dự án Supabase','Vào <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a>, đăng ký miễn phí, bấm New project. Chọn region Singapore cho gần Việt Nam. Chờ khoảng 2 phút.'],
-    ['Tạo bảng và hàm cho sổ chung','Mở <b>SQL Editor</b> → New query → dán toàn bộ đoạn SQL bên dưới → bấm Run. Chạy lại nhiều lần cũng không sao.'],
-    ['Tắt xác nhận email','Vào <b>Authentication → Sign In / Providers → Email</b>, tắt “Confirm email”. Nếu để bật thì mỗi tài khoản mới phải mở email bấm xác nhận rồi mới đăng nhập được.'],
-    ['Lấy URL và key','<b>URL</b>: vào <b>Settings → Integrations → Data API</b>, copy ô API URL. Nó có đuôi <code>/rest/v1/</code> — cứ dán nguyên, app tự cắt cho đúng.<br><b>Key</b>: vào <b>Settings → API Keys → tab “Legacy anon, service_role API keys”</b>, bấm Copy ở dòng <code>anon public</code>. Tuyệt đối không dùng <code>service_role</code>.'],
-    ['Người thứ nhất: tạo tài khoản và tạo sổ','Bấm “Tạo tài khoản mới” bằng gmail của mình, rồi bấm <b>“Tạo sổ mới”</b>. App hiện một <b>mã sổ 8 ký tự</b>, ví dụ <code>A3F9K2C7</code>.'],
-    ['Người thứ hai: tài khoản riêng, cùng mã sổ','Người kia mở app, <b>tạo tài khoản mới bằng gmail của họ</b> (email khác, mật khẩu khác), rồi nhập <b>mã sổ</b> ở trên vào ô “Hoặc nhập mã sổ đã có” và bấm “Vào sổ chung”. Từ giờ hai tài khoản dùng chung một dữ liệu.'],
-    ['Mở trên điện thoại','Kéo file .html này thả vào <a href="https://app.netlify.com/drop" target="_blank" rel="noopener">app.netlify.com/drop</a> để có một địa chỉ web. Mở địa chỉ đó trên điện thoại, đăng nhập, bấm “Thêm vào màn hình chính”.']
+    ['Tạo tài khoản của riêng bạn','Ở tab Cài đặt, nhập gmail và mật khẩu của bạn rồi bấm “Tạo tài khoản mới”. Máy chủ đã được kết nối sẵn, không cần cài gì thêm.'],
+    ['Người đầu tiên: tạo sổ','Bấm <b>“Tạo sổ mới”</b>. App hiện một <b>mã sổ 8 ký tự</b>, ví dụ <code>A3F9K2C7</code>. Đây là chìa khoá của sổ, nhắn riêng cho người kia.'],
+    ['Người thứ hai: nhập mã','Người kia mở app, <b>tạo tài khoản bằng gmail riêng của họ</b>, rồi dán mã sổ vào ô “Hoặc nhập mã sổ đã có” và bấm “Vào sổ chung”. Từ giờ hai tài khoản dùng chung một dữ liệu.'],
+    ['Mở trên điện thoại','Kéo file .html này thả vào <a href="https://app.netlify.com/drop" target="_blank" rel="noopener">app.netlify.com/drop</a> để có một địa chỉ web. Mở địa chỉ đó trên điện thoại, đăng nhập, bấm “Thêm vào màn hình chính”.'],
+    ['Khi sổ hiện toàn số 0','Nghĩa là chưa vào đúng sổ. Kiểm tra đã đăng nhập chưa, và mã sổ đã đúng chưa. Dữ liệu nằm trên máy chủ, chỉ hiện ra khi vào đúng sổ.']
   ];
   $('#modal').classList.remove('hide');
   $('#modal').innerHTML=`<div class="sheet" role="dialog" aria-modal="true">
-    <h2>Bật đồng bộ nhiều thiết bị</h2>
-    <p class="sub">Làm một lần duy nhất, khoảng 10 phút. Mỗi người một tài khoản gmail riêng, cùng vào một “sổ chung” qua mã 8 ký tự.</p>
+    <h2>Dùng chung sổ giữa hai người</h2>
+    <p class="sub">Máy chủ đã kết nối sẵn. Mỗi người một tài khoản gmail riêng, cùng vào một “sổ chung” qua mã 8 ký tự.</p>
     ${steps.map((s,i)=>`<div class="step"><div class="n">${i+1}</div><div class="c"><b>${s[0]}</b><p>${s[1]}</p>
-      ${i===1?`<pre class="code">${esc(SQL)}</pre><button class="btn sm" data-act="copysql" style="margin-top:9px">Copy SQL</button>`:''}</div></div>`).join('')}
+      </div></div>`).join('')}
+    <div style="margin-top:18px;padding-top:14px;border-top:1px dashed var(--line)">
+      <h3 style="margin-bottom:6px">Nâng cao: dùng dự án Supabase riêng</h3>
+      <p class="sub">Chỉ cần khi bạn muốn tự quản lý cơ sở dữ liệu. Tạo dự án miễn phí ở
+        <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a>, chạy đoạn SQL dưới đây trong
+        <b>SQL Editor</b>, tắt “Confirm email” ở <b>Authentication → Email</b>, rồi dán URL và anon key vào mục
+        “Đổi dự án Supabase” trong tab Cài đặt.</p>
+      <pre class="code">${esc(SQL)}</pre>
+      <button class="btn sm" data-act="copysql" style="margin-top:9px">Copy SQL</button></div>
     <div class="row" style="margin-top:18px"><button class="btn p" data-act="close" style="flex:1">Đã hiểu</button></div>
   </div>`;
 }
@@ -1212,6 +1259,9 @@ document.addEventListener('click',async e=>{
   const a=b.dataset.act;
 
   if(a==='rtoggle'){ rangeOpen=!rangeOpen; render(); return; }
+  if(a==='gosettings'){ tab='set';
+    [...$('#tabs').children].forEach(x=>x.classList.toggle('on',x.dataset.t==='set'));
+    render(); window.scrollTo({top:0,behavior:'smooth'}); return; }
   if(a==='add')openTx(null);
   else if(a==='close')closeModal();
   else if(a==='submit')submitTx();
@@ -1236,6 +1286,12 @@ document.addEventListener('click',async e=>{
   else if(a==='pin'){ DEV.pin=null;await saveDev();mode='new';buf='';drawDots();
     $('#lockTitle').textContent='Tạo mã PIN mới';$('#lockSub').textContent='Chọn 4–8 số';
     $('#app').classList.add('hide');$('#lock').classList.remove('hide'); }
+  else if(a==='seed'){
+    const have=TXS().length;
+    if(confirm(have?('Sổ đang có '+have+' giao dịch. Nạp thêm dữ liệu gốc? Giao dịch trùng sẽ không bị nhân đôi.')
+                   :'Nạp '+SEED_TX.length+' giao dịch từ sổ Excel gốc?')){
+      D=mergeBook(D,{tx:JSON.parse(JSON.stringify(SEED_TX))});
+      await save(); render(); toast('Đã nạp dữ liệu gốc'); } }
   else if(a==='export')dl(JSON.stringify(D,null,2),'so-tiet-kiem-'+new Date().toISOString().slice(0,10)+'.json','application/json');
   else if(a==='csv')csv();
   else if(a==='import')$('#file').click();
@@ -1257,9 +1313,17 @@ document.addEventListener('click',async e=>{
     }catch(e){ msg='Không kết nối được tới '+u+'. Kiểm tra Project URL và mạng.'; }
     b.disabled=false;
     if(!ok){ render(); toast(msg); return; }
-    C().url=u; C().key=k; await saveDev(); render(); toast('Kết nối tốt. Giờ tạo tài khoản hoặc đăng nhập.');
+    const same=(u===base()&&k===C().key);
+    C().url=u; C().key=k; if(!same){C().session=null;C().book=null;C().lastSync=0;}
+    cloudEdit=false; syncErr=''; await saveDev(); render();
+    toast(same?'Kết nối tốt.':'Đã đổi dự án. Giờ đăng nhập lại.');
   }
-  else if(a==='cloudclear'){ DEV.cloud=JSON.parse(JSON.stringify(DEVDEF.cloud)); await saveDev(); render(); }
+  else if(a==='cloudedit'){ cloudEdit=true; render(); }
+  else if(a==='cloudcancel'){ cloudEdit=false; render(); }
+  else if(a==='clouddefault'){
+    if(confirm('Quay về dự án Supabase mặc định? Sẽ phải đăng nhập lại.')){
+      DEV.cloud=JSON.parse(JSON.stringify(DEVDEF.cloud)); cloudEdit=false; syncErr='';
+      await saveDev(); render(); toast('Đã về dự án mặc định'); } }
   else if(a==='signin'||a==='signup'){
     const em=$('#cEmail').value.trim(), pw=$('#cPass').value;
     if(!em||pw.length<6){toast('Nhập email và mật khẩu từ 6 ký tự');return;}
